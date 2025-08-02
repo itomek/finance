@@ -1,0 +1,47 @@
+name: Update Formula
+
+on:
+  repository_dispatch:
+    types: [formula-update]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to update to (e.g., 0.1.0)'
+        required: true
+      sha256:
+        description: 'SHA256 of the release tarball'
+        required: true
+
+jobs:
+  update-formula:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update formula
+        run: |
+          VERSION="${{ github.event.client_payload.version || github.event.inputs.version }}"
+          SHA256="${{ github.event.client_payload.sha256 || github.event.inputs.sha256 }}"
+          
+          # Update the formula file
+          sed -i "s|url \".*\"|url \"https://github.com/itomek/finance/releases/download/v${VERSION}/finance-${VERSION}.tar.gz\"|" Formula/finance.rb
+          sed -i "s|sha256 \".*\"|sha256 \"${SHA256}\"|" Formula/finance.rb
+
+      - name: Test formula
+        run: |
+          # Install Homebrew dependencies for testing
+          brew install --build-from-source Formula/finance.rb --dry-run
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Update finance formula to version ${{ github.event.client_payload.version || github.event.inputs.version }}"
+          title: "Update finance formula to version ${{ github.event.client_payload.version || github.event.inputs.version }}"
+          body: |
+            Updates the finance formula to version ${{ github.event.client_payload.version || github.event.inputs.version }}.
+            
+            SHA256: ${{ github.event.client_payload.sha256 || github.event.inputs.sha256 }}
+          branch: update-formula-${{ github.event.client_payload.version || github.event.inputs.version }}
+          delete-branch: true
