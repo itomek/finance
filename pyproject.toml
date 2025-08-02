@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.9"
 license = "MIT"
 authors = [
-    {name = "Tomasz Iniewicz", email = "tomasz.iniewicz@gmail.com"}
+    {name = "Tomasz Iniewicz", email = "infancy_shred.0d@icloud.com"}
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
