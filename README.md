@@ -1,23 +1,42 @@
-# Finance CLI
+# Finance Analysis & Planning Tool
 
-A powerful command-line tool for parsing financial documents, processing transactions, and managing personal finance data. Built with Python and designed for macOS.
+A comprehensive historical financial analysis and future planning tool that processes bank and brokerage statements to provide insights, trends, and projections. Built with Python, API-first architecture, and MCP integration for AI assistants.
 
 ## Overview
 
-Finance CLI helps automate common financial data processing tasks:
-- Extract transaction data from PDF bank statements
-- Merge and deduplicate CSV transaction files
-- Categorize transactions using customizable rules
-- Integrate with AI assistants via MCP (Model Context Protocol)
+This tool analyzes your financial history to help you understand patterns and plan for the future:
+- **Historical Analysis**: Process past bank statements (PNC) and brokerage statements (Robinhood)
+- **Trend Detection**: Identify spending patterns, income trends, and investment performance
+- **Future Planning**: Project cash flows, test affordability scenarios, and model "what-if" situations
+- **AI Integration**: Connect with LM Studio, Claude, or other AI assistants via MCP for conversational analysis
 
-## Features
+**Note**: This is NOT a real-time financial tracking tool. It focuses on analyzing completed statements to provide insights and projections based on historical data.
 
-- **PDF Parsing**: Extract tables from bank statements using Camelot, with fallback options for complex layouts
-- **CSV Processing**: Merge multiple transaction files, remove duplicates, and standardize formats
-- **Transaction Categorization**: Apply rules-based categorization for expense tracking
-- **Batch Processing**: Process multiple files with glob patterns
-- **MCP Integration**: Use with Claude, LM Studio, or Open WebUI for AI-assisted financial workflows
-- **Local Storage**: All data processed locally for privacy
+## Key Features
+
+### Data Import & Validation
+- **Multi-Source Support**: Parse PDFs from PNC Bank and Robinhood (more institutions coming)
+- **Staging Pipeline**: Validate data mathematically before committing to database
+- **Duplicate Detection**: Intelligent detection across imports with fuzzy matching
+- **Balance Reconciliation**: Ensure mathematical accuracy of all statements
+
+### Historical Analysis
+- **Spending Patterns**: Identify trends, categories, and anomalies in your spending
+- **Income Analysis**: Track multiple income sources and their stability
+- **Investment Performance**: Monitor portfolio returns, dividends, and trading patterns
+- **Net Worth Tracking**: See how your overall financial position evolves over time
+
+### Future Planning
+- **Cash Flow Projections**: Forecast future income and expenses based on historical patterns
+- **Affordability Calculator**: Test scenarios like "Can I afford a $40k car loan?"
+- **What-If Analysis**: Model changes to spending, income, or investments
+- **Goal Planning**: Set and track progress toward financial objectives
+
+### Privacy & Security
+- **Local Processing**: All data stays on your machine
+- **Encrypted Storage**: Financial data encrypted at rest
+- **No External Services**: No cloud dependencies or data transmission
+- **Audit Trail**: Complete history of all data operations
 
 ## Installation
 
@@ -38,66 +57,85 @@ pip install -e .
 
 ## Usage
 
-### Basic Commands
-
-```bash
-# Parse a PDF bank statement
-finance parse statement.pdf --output transactions.csv
-
-# Merge multiple CSV files
-finance merge account1.csv account2.csv --output combined.csv --dedupe
-
-# Categorize transactions
-finance categorize transactions.csv --rules ~/.finance-cli/rules.yaml
-
-# Batch process multiple PDFs
-finance parse *.pdf --output-dir processed/
-```
+The tool is designed to be used through AI assistants via the MCP server. You can ask questions like:
+- "What were my dining expenses last year?"
+- "Can I afford a $2,000/month mortgage based on my income history?"
+- "Show me my investment performance over the past 2 years"
+- "If I reduce dining out by 30%, how much could I save annually?"
+- "Project my net worth for the next 5 years"
 
 ### Configuration
 
-Finance CLI stores configuration and data in `~/.finance-cli/`:
+The tool stores all data in `~/.finance-cli/`:
 
-```bash
-# Initialize configuration
-finance config --init
-
-# Show configuration
-finance config --show
-
-# Edit configuration
-finance config --edit
+```
+~/.finance-cli/
+├── config.yaml           # Configuration
+├── finance_history.db    # SQLite database with all financial data
+├── staging/              # Temporary import staging area
+├── imports/              # Archived statements
+├── templates/            # Institution-specific parsing templates
+└── reports/              # Generated analysis reports
 ```
 
 ## MCP Server Integration
 
-The Finance CLI includes an MCP server that exposes financial operations to AI assistants:
+The MCP server exposes financial analysis capabilities to AI assistants like LM Studio:
 
-1. Install the MCP server:
-   ```bash
-   finance-mcp install
-   ```
+### Available MCP Tools
 
-2. Configure your AI assistant to use the Finance MCP server
+#### Import & Processing
+- `import_statements` - Import bank/brokerage statements with validation
+- `validate_staged_data` - Review validation results before committing
+- `resolve_issues` - Handle duplicates and discrepancies
 
-3. Available MCP tools:
-   - `parse_financial_documents` - Parse PDFs into structured data
-   - `process_transactions` - Merge, categorize, and transform CSVs
-   - `manage_configuration` - Get/set configuration options
+#### Analysis Tools
+- `analyze_spending` - Analyze spending patterns by period/category
+- `analyze_portfolio` - Investment performance and allocation analysis
+- `net_worth_analysis` - Comprehensive financial position over time
+- `financial_health_check` - Overall financial health assessment
+
+#### Planning Tools
+- `project_cash_flow` - Forecast future income and expenses
+- `calculate_affordability` - Test loan/purchase affordability
+- `scenario_planning` - Run complex what-if scenarios
+- `investment_projections` - Model portfolio growth
+
+#### Insights & Reporting
+- `get_insights` - AI-generated insights and recommendations
+- `generate_dashboard` - Create markdown dashboards
+- `search_transactions` - Query historical transactions
 
 ## Architecture
 
+### API-First Design
+
 ```
-┌─────────────────┐     ┌─────────────────┐
-│   CLI Tool      │────▶│   MCP Server    │
-│  (Python)       │     │   (Wrapper)     │
-└─────────────────┘     └─────────────────┘
-         │                       │
-         ▼                       ▼
-┌─────────────────┐     ┌─────────────────┐
-│  Direct Users   │     │  AI Assistants  │
-│                 │     │ (Claude, etc.)  │
-└─────────────────┘     └─────────────────┘
+         ┌─────────────────┐     ┌─────────────────┐
+         │   MCP Server    │     │   Web UI        │
+         │   (Wrapper)     │     │   (Future)      │
+         └────────┬────────┘     └────────┬────────┘
+                  │                        │
+                  └────────────┬───────────┘
+                               │
+                    ┌──────────▼──────────┐
+                    │    Core REST API    │
+                    │     (FastAPI)       │
+                    └──────────┬──────────┘
+                                 │
+         ┌───────────────────────┼───────────────────────┐
+         │                       │                       │
+┌────────▼────────┐     ┌────────▼────────┐     ┌───────▼────────┐
+│ Import Pipeline │     │ Analysis Engine │     │ Planning Engine │
+│   & Validation  │     │   & Insights    │     │  & Projections │
+└────────┬────────┘     └────────┬────────┘     └───────┬────────┘
+         │                       │                       │
+         └───────────────────────┴───────────────────────┘
+                                 │
+                      ┌──────────▼──────────┐
+                      │   SQLite Database   │
+                      │  (Historical Data)  │
+                      └─────────────────────┘
 ```
 
 ## Development
@@ -131,28 +169,38 @@ mypy src/
 ```
 finance/
 ├── src/
-│   ├── finance_cli/      # Core CLI implementation
-│   ├── parsers/          # PDF parsing modules
-│   ├── processors/       # CSV processing modules
-│   └── mcp_server/       # MCP server implementation
-├── tests/                # Test suite
-├── examples/             # Example files and usage
+│   ├── api/              # Core REST API (FastAPI)
+│   │   ├── routes/       # API endpoints
+│   │   ├── models/       # Request/response models
+│   │   └── services/     # Business logic
+│   ├── parsers/          # Statement parsing (PNC, Robinhood)
+│   ├── processors/       # Transaction processing & validation
+│   ├── analysis/         # Historical analysis engine
+│   ├── planning/         # Future projection engine
+│   ├── insights/         # AI-powered insights
+│   └── mcp_server/       # MCP wrapper for API
+├── tests/                # Comprehensive test suite
+├── templates/            # Institution parsing templates
 └── docs/                 # Extended documentation
 ```
 
 ## Dependencies
 
-- **PDF Parsing**: Camelot, pdfplumber, tabula-py
-- **Data Processing**: pandas, numpy
-- **CLI Framework**: Click or Typer
+- **API Framework**: FastAPI, uvicorn, pydantic
+- **PDF Parsing**: Camelot, pdfplumber, tabula-py, pytesseract
+- **Data Processing**: pandas, numpy, scikit-learn
+- **Database**: SQLite with SQLAlchemy ORM
 - **MCP Integration**: mcp-python-sdk
+- **Security**: cryptography, python-jose
 
 ## Privacy & Security
 
-- All processing happens locally on your machine
-- No data is sent to external servers
-- Configuration files are stored with restricted permissions (700/600)
-- Financial data remains under your control
+- **100% Local**: All processing happens on your machine - no cloud services
+- **Encrypted Storage**: Database and sensitive files encrypted at rest
+- **Data Anonymization**: Built-in tools for anonymizing exports
+- **Audit Trail**: Complete logging of all data access and modifications
+- **Secure Deletion**: Cryptographic erasure of deleted data
+- **Access Control**: API key authentication and rate limiting
 
 ## Contributing
 

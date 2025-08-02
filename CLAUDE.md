@@ -4,16 +4,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Python-based financial data processing CLI tool with MCP (Model Context Protocol) server integration. The tool parses financial PDFs, processes CSV transaction data, and exposes these capabilities to AI assistants.
+This is a Python-based historical financial analysis and future planning tool with an API-first architecture. It processes bank statements (PNC) and brokerage statements (Robinhood) to provide insights, trends, and projections through both a CLI and MCP server for AI assistants.
+
+**Key Focus**: This is NOT a real-time financial tracker. It analyzes completed statements to identify patterns and help users plan their financial future based on historical data.
 
 ## Technology Stack
 
 **Primary Language:** Python
 **License:** MIT License (Tomasz Iniewicz, 2025)
-**PDF Libraries:** Camelot (primary), pdfplumber, tabula-py (fallbacks), pytesseract (OCR for scanned documents)
-**Data Processing:** pandas, numpy
-**CLI Framework:** Click or Typer
-**MCP Integration:** mcp-python-sdk
+**API Framework:** FastAPI with uvicorn
+**Database:** SQLite with SQLAlchemy ORM
+**PDF Libraries:** Camelot (primary), pdfplumber, tabula-py (fallbacks), pytesseract (OCR)
+**Data Processing:** pandas, numpy, scikit-learn
+**MCP Integration:** mcp-python-sdk (wraps API endpoints)
+**Security:** cryptography for encryption, python-jose for JWT
 
 ## Development Setup
 
@@ -27,105 +31,162 @@ This is a Python-based financial data processing CLI tool with MCP (Model Contex
 ```
 finance/
 ├── src/
-│   ├── finance_cli/      # Core CLI implementation
+│   ├── api/              # Core REST API (FastAPI)
 │   │   ├── __init__.py
-│   │   ├── cli.py        # Main CLI entry point
-│   │   ├── config.py     # Configuration management
-│   │   └── utils.py      # Shared utilities
-│   ├── parsers/          # PDF parsing modules
+│   │   ├── main.py       # FastAPI app entry point
+│   │   ├── routes/       # API endpoint definitions
+│   │   ├── models/       # Pydantic models
+│   │   ├── services/     # Business logic layer
+│   │   └── auth.py       # Authentication
+│   ├── parsers/          # Institution-specific parsers
 │   │   ├── __init__.py
-│   │   ├── camelot_parser.py
-│   │   ├── pdfplumber_parser.py
-│   │   └── base_parser.py
-│   ├── processors/       # CSV processing modules
+│   │   ├── base_parser.py
+│   │   ├── pnc_parser.py
+│   │   └── robinhood_parser.py
+│   ├── processors/       # Data processing & validation
 │   │   ├── __init__.py
-│   │   ├── merger.py
-│   │   ├── categorizer.py
-│   │   └── deduplicator.py
-│   └── mcp_server/       # MCP server implementation
+│   │   ├── validator.py  # Mathematical validation
+│   │   ├── deduplicator.py
+│   │   └── staging.py    # Import staging pipeline
+│   ├── analysis/         # Historical analysis
+│   │   ├── __init__.py
+│   │   ├── spending.py
+│   │   ├── income.py
+│   │   ├── investments.py
+│   │   └── trends.py
+│   ├── planning/         # Future projections
+│   │   ├── __init__.py
+│   │   ├── projections.py
+│   │   ├── scenarios.py
+│   │   └── affordability.py
+│   ├── insights/         # AI-powered insights
+│   │   ├── __init__.py
+│   │   ├── patterns.py
+│   │   └── recommendations.py
+│   ├── database/         # Database layer
+│   │   ├── __init__.py
+│   │   ├── models.py     # SQLAlchemy models
+│   │   └── migrations/   # Alembic migrations
+│   └── mcp_server/       # MCP wrapper for API
 │       ├── __init__.py
 │       ├── server.py
-│       └── tools.py
-├── tests/                # Test suite
-├── examples/             # Example files and usage
+│       └── tools.py      # MCP tool definitions
+├── tests/                # Comprehensive test suite
+├── templates/            # Institution parsing templates
 └── docs/                 # Extended documentation
 ```
 
-## CLI Command Structure
+## API-First Architecture
 
-Following industry standards from tools like ledger-cli and hledger:
+The system is built around a REST API that all clients (CLI, MCP, future web UI) consume:
 
-```bash
-finance [global-options] <command> [command-options] [arguments]
+### API Endpoints Structure
+```
+/api/v1/
+├── /import/          # Statement import and validation
+├── /analysis/        # Historical analysis endpoints
+├── /planning/        # Future projection endpoints
+├── /insights/        # AI-generated insights
+├── /reports/         # Report generation
+└── /config/          # Configuration management
 ```
 
-### Core Commands
-- `finance parse <file.pdf>` - Parse PDF financial statements
-- `finance merge <file1.csv> <file2.csv> ...` - Merge CSV files
-- `finance categorize <file.csv>` - Categorize transactions
-- `finance config` - Manage configuration
+### API Access
+The API will be accessed through:
+- **MCP Server**: Primary interface for AI assistants
+- **Direct API**: For future web UI or other integrations
+- **No CLI**: All functionality exposed through API endpoints only
 
 ## MCP Server Design
 
-The MCP server groups related CLI commands into logical tools:
+The MCP server wraps API endpoints to provide conversational financial analysis:
 
-1. **parse_financial_documents** - PDF parsing operations
-2. **process_transactions** - CSV merge/categorize/dedupe operations  
-3. **manage_configuration** - Configuration management
+### Import & Validation Tools
+- **import_statements** - Process bank/brokerage statements
+- **validate_staged_data** - Review mathematical validation results
+- **resolve_issues** - Handle duplicates and discrepancies
 
-Each MCP tool wraps the corresponding CLI commands, providing structured input/output for AI assistants.
+### Analysis Tools
+- **analyze_spending** - Historical spending patterns
+- **analyze_portfolio** - Investment performance analysis
+- **net_worth_analysis** - Complete financial picture
+- **financial_health_check** - Comprehensive assessment
+
+### Planning Tools
+- **project_cash_flow** - Future income/expense projections
+- **calculate_affordability** - Test purchase/loan scenarios
+- **scenario_planning** - Complex what-if analysis
+- **investment_projections** - Portfolio growth modeling
+
+### Insights & Reporting
+- **get_insights** - AI-powered pattern detection
+- **generate_dashboard** - Markdown report generation
+- **search_transactions** - Query historical data
 
 ## Important Guidelines
 
-### PDF Parsing
-- Use Camelot as the primary parser for table extraction
-- Fall back to pdfplumber for complex layouts
-- Consider tabula-py as an additional option
-- Implement OCR support with pytesseract for scanned documents
-- Support bank-specific templates for reliable parsing
+### Data Import & Validation
+- **Staging First**: Always import to staging area before database commit
+- **Mathematical Validation**: Verify balances reconcile (beginning + transactions = ending)
+- **Duplicate Detection**: Use fuzzy matching with configurable thresholds
+- **User Confirmation**: Require explicit approval for imports with issues
+- **Institution Templates**: Use YAML templates for parser configuration
 
-### Data Processing
-- All operations should support batch processing with glob patterns
-- Default output to stdout unless --output specified
-- Support piping for command chaining
-- Use pandas for CSV operations
-- Implement robust deduplication logic
+### Historical Analysis Focus
+- **Completed Periods Only**: Analyze full statements, not partial data
+- **Pattern Detection**: Look for trends across multiple periods
+- **Statistical Significance**: Require sufficient data for projections
+- **Seasonality Awareness**: Account for cyclical patterns
+- **Multi-Account Correlation**: Analyze relationships between accounts
 
-### Configuration
-- Store config in `~/.finance-cli/config.yaml`
-- Support environment variable overrides
-- Include sample configuration in repository
-- Set appropriate file permissions (700/600)
+### Future Planning
+- **Confidence Intervals**: Always provide uncertainty ranges
+- **Multiple Scenarios**: Best/worst/likely case projections
+- **Historical Basis**: Ground all projections in actual data
+- **Assumption Transparency**: Clearly state all assumptions
+- **Monte Carlo Simulations**: For complex uncertainty modeling
 
-### Error Handling
-- Use structured exit codes: 0 (success), 1 (general error), 2 (usage error)
-- Provide clear error messages to stderr
-- Include progress indicators for batch operations
+### Security & Privacy
+- **Encryption at Rest**: Use SQLite encryption extension
+- **PII Masking**: Always mask account numbers in logs/exports
+- **Audit Trail**: Log all data access with timestamps
+- **Secure Deletion**: Cryptographic erasure for sensitive data
+- **Local-Only Processing**: No external API calls for data
 
-### Testing
-- Write comprehensive tests for all parsers
-- Test edge cases in CSV processing
-- Mock external dependencies appropriately
-- Aim for >80% code coverage
+### API Design
+- **RESTful Principles**: Use proper HTTP verbs and status codes
+- **Pagination**: Support for large result sets
+- **Async Operations**: Long-running tasks return job IDs
+- **Versioning**: Include version in URL (/api/v1/)
+- **OpenAPI Documentation**: Auto-generate from code
 
-### Security
-- Never log or expose sensitive financial data
-- Process all data locally
-- Set restrictive permissions on config files
-- Document privacy considerations clearly
+### Testing Requirements
+- **Unit Tests**: All parsers and processors >90% coverage
+- **Integration Tests**: Full import pipeline testing
+- **Validation Tests**: Mathematical accuracy verification
+- **Performance Tests**: Handle large statement files
+- **Security Tests**: Attempt common attack vectors
 
 ## Development Commands
 
 ```bash
+# Start API server
+uvicorn src.api.main:app --reload
+
 # Run tests
 pytest
+pytest tests/validation/ -v  # Run validation tests specifically
 
-# Lint code
+# Lint and format
 ruff check .
 ruff format .
 
 # Type checking
 mypy src/
+
+# Database migrations
+alembic upgrade head
+alembic revision --autogenerate -m "Description"
 
 # Build package
 python -m build
@@ -134,10 +195,29 @@ python -m build
 pip install -e .
 ```
 
+## Data Storage Structure
+
+```
+~/.finance-cli/
+├── config.yaml           # User configuration
+├── finance_history.db    # SQLite database (encrypted)
+├── staging/              # Import staging area
+│   └── {import_id}/      # Per-import session
+│       ├── raw/          # Original files
+│       ├── parsed/       # Parsed data
+│       └── validation/   # Validation results
+├── imports/              # Archived imports
+├── templates/            # Institution templates
+│   ├── pnc.yaml
+│   └── robinhood.yaml
+├── analysis/             # Cached analysis results
+└── reports/              # Generated reports
+```
+
 ## Important Notes
 
-- The `.gitignore` covers Python development comprehensively
-- Choose one package manager and stick with it for consistency
-- The project supports Jupyter notebooks for financial analysis prototyping
-- All financial data processing happens locally for privacy
-- The tool is designed primarily for macOS but should work cross-platform
+- **API-First**: All functionality exposed through REST API
+- **Historical Focus**: Designed for past data analysis, not real-time tracking
+- **Institution Support**: Initially PNC and Robinhood, extensible via templates
+- **Privacy-First**: All processing local, no cloud dependencies
+- **Cross-Platform**: API enables platform-agnostic clients
