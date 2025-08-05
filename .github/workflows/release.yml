@@ -33,11 +33,9 @@ jobs:
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Upload release asset
-        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./dist/finance-${{ steps.get_version.outputs.version }}.tar.gz
-          asset_name: finance-${{ steps.get_version.outputs.version }}.tar.gz
-          asset_content_type: application/gzip
+        run: |
+          gh release upload "${{ github.event.release.tag_name }}" \
+            "./dist/finance-${{ steps.get_version.outputs.version }}.tar.gz" \
+            --clobber
