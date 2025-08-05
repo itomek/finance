@@ -216,3 +216,6 @@ staging/
 imports/
 analysis/
 reports/
+
+# Homebrew tap (separate repository)
+homebrew-finance/
