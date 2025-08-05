@@ -1,30 +1,37 @@
 name: Update Homebrew Formula
 
 on:
-  release:
-    types: [published]
+  workflow_run:
+    workflows: ["Build and Release"]
+    types: [completed]
 
 jobs:
   update-formula:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Download release asset
+      - name: Get release info
+        id: release_info
         run: |
-          VERSION="${{ github.event.release.tag_name }}"
-          VERSION="${VERSION#v}"  # Remove 'v' prefix if present
-          
-          # Download the tarball to calculate SHA256 using GitHub API
-          curl -L \
+          # Get the latest release
+          RELEASE_DATA=$(curl -s \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/tarball/v${VERSION}" \
-            -o "finance-${VERSION}.tar.gz"
+            "https://api.github.com/repos/${{ github.repository }}/releases/latest")
           
-          SHA256=$(sha256sum "finance-${VERSION}.tar.gz" | cut -d' ' -f1)
+          VERSION=$(echo "$RELEASE_DATA" | jq -r '.tag_name' | sed 's/^v//')
+          ASSET_URL=$(echo "$RELEASE_DATA" | jq -r '.assets[] | select(.name | contains(".tar.gz")) | .browser_download_url')
           
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "ASSET_URL=${ASSET_URL}" >> $GITHUB_ENV
+
+      - name: Download and calculate SHA256
+        run: |
+          # Download the release asset
+          curl -L -o "finance-${VERSION}.tar.gz" "${ASSET_URL}"
+          
+          # Calculate SHA256
+          SHA256=$(sha256sum "finance-${VERSION}.tar.gz" | cut -d' ' -f1)
+          
           echo "SHA256=${SHA256}" >> $GITHUB_ENV
 
       - name: Trigger formula update
@@ -33,4 +40,4 @@ jobs:
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           repository: itomek/homebrew-finance
           event-type: formula-update
-          client-payload: '{"version": "${{ env.VERSION }}", "sha256": "${{ env.SHA256 }}"}'
+          client-payload: '{"version": "${{ env.VERSION }}", "sha256": "${{ env.SHA256 }}", "download_url": "${{ env.ASSET_URL }}"}'
