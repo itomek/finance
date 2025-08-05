@@ -16,8 +16,12 @@ jobs:
           VERSION="${{ github.event.release.tag_name }}"
           VERSION="${VERSION#v}"  # Remove 'v' prefix if present
           
-          # Download the tarball to calculate SHA256
-          wget -q "https://github.com/${{ github.repository }}/archive/refs/tags/v${VERSION}.tar.gz" -O "finance-${VERSION}.tar.gz"
+          # Download the tarball to calculate SHA256 using GitHub API
+          curl -L \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/tarball/v${VERSION}" \
+            -o "finance-${VERSION}.tar.gz"
+          
           SHA256=$(sha256sum "finance-${VERSION}.tar.gz" | cut -d' ' -f1)
           
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
