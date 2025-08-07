@@ -5,7 +5,7 @@ A comprehensive historical financial analysis and future planning tool that proc
 ## Overview
 
 This tool analyzes your financial history to help you understand patterns and plan for the future:
-- **Historical Analysis**: Process past bank statements (PNC) and brokerage statements (Robinhood)
+- **Historical Analysis**: Process past bank statements and brokerage statements
 - **Trend Detection**: Identify spending patterns, income trends, and investment performance
 - **Future Planning**: Project cash flows, test affordability scenarios, and model "what-if" situations
 - **AI Integration**: Connect with LM Studio, Claude, or other AI assistants via MCP for conversational analysis
@@ -15,7 +15,7 @@ This tool analyzes your financial history to help you understand patterns and pl
 ## Key Features
 
 ### Data Import & Validation
-- **Multi-Source Support**: Parse PDFs from PNC Bank and Robinhood (more institutions coming)
+- **Multi-Source Support**: Parse PDFs from banking and brokerage institutions (more institutions coming)
 - **Staging Pipeline**: Validate data mathematically before committing to database
 - **Duplicate Detection**: Intelligent detection across imports with fuzzy matching
 - **Balance Reconciliation**: Ensure mathematical accuracy of all statements
