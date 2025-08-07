@@ -40,11 +40,18 @@ This tool analyzes your financial history to help you understand patterns and pl
 
 ## Installation
 
-### Via Homebrew (Coming Soon)
+### Via Homebrew (macOS)
 
 ```bash
 brew tap itomek/finance
-brew install finance-cli
+brew install finance
+```
+
+To upgrade to the latest version:
+
+```bash
+brew update
+brew upgrade finance
 ```
 
 ### From Source
