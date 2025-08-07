@@ -1,9 +1,8 @@
 """Tests for the hello module."""
 
-import sys
-from unittest.mock import patch
-from io import StringIO
 from importlib.metadata import PackageNotFoundError
+from io import StringIO
+from unittest.mock import patch
 
 from finance import __version__, hello_world
 from finance.hello import get_version
@@ -59,7 +58,7 @@ class TestHelloWorld:
         version = get_version()
         assert isinstance(version, str)
         assert len(version) > 0
-    
+
     def test_get_version_fallback(self) -> None:
         """Test that get_version returns fallback when package not found."""
         with patch('finance.hello.version', side_effect=PackageNotFoundError):

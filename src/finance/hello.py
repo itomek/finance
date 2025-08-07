@@ -1,12 +1,12 @@
 """Hello world module for testing CI/CD pipeline."""
 
 import sys
-from importlib.metadata import version, PackageNotFoundError
+from importlib.metadata import PackageNotFoundError, version
 
 
 def get_version() -> str:
     """Get the package version.
-    
+
     Returns:
         str: The package version or 'unknown' if not found.
     """
@@ -18,7 +18,7 @@ def get_version() -> str:
 
 def hello_world() -> None:
     """Main entry point for the finance CLI.
-    
+
     Handles --version flag and hello command.
     """
     if len(sys.argv) > 1:
