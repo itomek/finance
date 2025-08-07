@@ -13,40 +13,40 @@ class TestHelloWorld:
 
     def test_hello_world_default(self) -> None:
         """Test that hello_world prints the expected message with no args."""
-        with patch('sys.argv', ['finance']):
-            with patch('sys.stdout', new=StringIO()) as fake_output:
-                with patch('sys.exit') as mock_exit:
+        with patch("sys.argv", ["finance"]):
+            with patch("sys.stdout", new=StringIO()) as fake_output:
+                with patch("sys.exit") as mock_exit:
                     hello_world()
                     mock_exit.assert_called_once_with(0)
                     assert fake_output.getvalue().strip() == "Hello, World!"
 
     def test_hello_world_hello_command(self) -> None:
         """Test that hello_world prints message with hello command."""
-        with patch('sys.argv', ['finance', 'hello']):
-            with patch('sys.stdout', new=StringIO()) as fake_output:
-                with patch('sys.exit') as mock_exit:
+        with patch("sys.argv", ["finance", "hello"]):
+            with patch("sys.stdout", new=StringIO()) as fake_output:
+                with patch("sys.exit") as mock_exit:
                     hello_world()
                     mock_exit.assert_called_once_with(0)
                     assert fake_output.getvalue().strip() == "Hello, World!"
 
     def test_hello_world_version_command(self) -> None:
         """Test that hello_world prints version with --version flag."""
-        with patch('sys.argv', ['finance', '--version']):
-            with patch('sys.stdout', new=StringIO()) as fake_output:
-                with patch('sys.exit') as mock_exit:
+        with patch("sys.argv", ["finance", "--version"]):
+            with patch("sys.stdout", new=StringIO()) as fake_output:
+                with patch("sys.exit") as mock_exit:
                     hello_world()
                     mock_exit.assert_called_once_with(0)
                     output = fake_output.getvalue().strip()
                     # Should print a version string
                     assert len(output) > 0
                     # Version should contain dots (semantic versioning)
-                    assert '.' in output
+                    assert "." in output
 
     def test_hello_world_unknown_command(self) -> None:
         """Test that hello_world handles unknown commands."""
-        with patch('sys.argv', ['finance', 'unknown']):
-            with patch('sys.stdout', new=StringIO()) as fake_output:
-                with patch('sys.exit') as mock_exit:
+        with patch("sys.argv", ["finance", "unknown"]):
+            with patch("sys.stdout", new=StringIO()) as fake_output:
+                with patch("sys.exit") as mock_exit:
                     hello_world()
                     mock_exit.assert_called_once_with(1)
                     output = fake_output.getvalue()
@@ -61,7 +61,7 @@ class TestHelloWorld:
 
     def test_get_version_fallback(self) -> None:
         """Test that get_version returns fallback when package not found."""
-        with patch('finance.hello.version', side_effect=PackageNotFoundError):
+        with patch("finance.hello.version", side_effect=PackageNotFoundError):
             version = get_version()
             assert version == "0.1.4"  # Fallback version
 
