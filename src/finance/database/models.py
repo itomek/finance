@@ -63,9 +63,14 @@ class Account(Base):
     account_type = Column(Enum(AccountType), nullable=False)
     account_number_masked = Column(String(20))  # Last 4 digits only
     is_active = Column(Boolean, default=True, nullable=False)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
+    )
     updated_at = Column(
-        DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False
+        DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        nullable=False,
     )
 
     # Relationships
@@ -93,10 +98,15 @@ class Transaction(Base):
         String(36), ForeignKey("import_sessions.id"), nullable=False
     )
     source_hash = Column(String(64))  # SHA-256 hash for duplicate detection
-    extra_data = Column(JSON)  # Additional flexible data (avoiding 'metadata' which is reserved)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    extra_data = Column(JSON)  # Additional flexible data
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
+    )
     updated_at = Column(
-        DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False
+        DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        nullable=False,
     )
 
     # Relationships
@@ -105,11 +115,18 @@ class Transaction(Base):
 
     def calculate_hash(self) -> str:
         """Calculate a hash for duplicate detection."""
-        hash_input = f"{self.account_id}:{self.transaction_date}:{self.amount}:{self.description}"
+        hash_input = (
+            f"{self.account_id}:{self.transaction_date}:"
+            f"{self.amount}:{self.description}"
+        )
         return hashlib.sha256(hash_input.encode()).hexdigest()
 
     def __repr__(self) -> str:
-        return f"<Transaction(date='{self.transaction_date}', amount={self.amount}, description='{self.description[:30]}...')>"
+        desc = self.description[:30]
+        return (
+            f"<Transaction(date='{self.transaction_date}', "
+            f"amount={self.amount}, description='{desc}...')>"
+        )
 
 
 class ImportSession(Base):
@@ -120,11 +137,15 @@ class ImportSession(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid4()))
     source_file = Column(String(255), nullable=False)
     institution = Column(String(50), nullable=False)
-    import_date = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    import_date = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
+    )
     status = Column(Enum(ImportStatus), default=ImportStatus.PENDING, nullable=False)
     record_count = Column(Integer, default=0)
     validation_notes = Column(JSON)  # Store validation issues and warnings
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
+    )
 
     # Relationships
     transactions = relationship(
@@ -132,5 +153,8 @@ class ImportSession(Base):
     )
 
     def __repr__(self) -> str:
-        return f"<ImportSession(file='{self.source_file}', status='{self.status.value}')>"
+        return (
+            f"<ImportSession(file='{self.source_file}', "
+            f"status='{self.status.value}')>"
+        )
 

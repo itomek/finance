@@ -1,7 +1,7 @@
 """Repository layer for database operations."""
 
 from datetime import datetime, timezone
-from typing import Any, Generic, List, Optional, Type, TypeVar
+from typing import Any, Generic, Optional, TypeVar
 
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
@@ -15,9 +15,9 @@ ModelType = TypeVar("ModelType", bound=Base)
 class BaseRepository(Generic[ModelType]):
     """Base repository with common CRUD operations."""
 
-    def __init__(self, session: Session, model: Type[ModelType]):
+    def __init__(self, session: Session, model: type[ModelType]):
         """Initialize repository.
-        
+
         Args:
             session: SQLAlchemy session.
             model: SQLAlchemy model class.
@@ -27,10 +27,10 @@ class BaseRepository(Generic[ModelType]):
 
     def create(self, **kwargs: Any) -> ModelType:
         """Create a new record.
-        
+
         Args:
             **kwargs: Model field values.
-            
+
         Returns:
             Created model instance.
         """
@@ -39,23 +39,23 @@ class BaseRepository(Generic[ModelType]):
         self.session.flush()  # Flush to get ID without committing
         return instance
 
-    def get(self, id: str) -> Optional[ModelType]:
+    def get(self, record_id: str) -> Optional[ModelType]:
         """Get a record by ID.
-        
+
         Args:
-            id: Record ID.
-            
+            record_id: Record ID.
+
         Returns:
             Model instance or None if not found.
         """
-        return self.session.query(self.model).filter(self.model.id == id).first()
+        return self.session.query(self.model).filter(self.model.id == record_id).first()
 
-    def list(self, **filters: Any) -> List[ModelType]:
+    def list(self, **filters: Any) -> list[ModelType]:
         """List records with optional filters.
-        
+
         Args:
             **filters: Field filters.
-            
+
         Returns:
             List of model instances.
         """
@@ -65,17 +65,17 @@ class BaseRepository(Generic[ModelType]):
                 query = query.filter(getattr(self.model, key) == value)
         return query.all()
 
-    def update(self, id: str, **kwargs: Any) -> Optional[ModelType]:
+    def update(self, record_id: str, **kwargs: Any) -> Optional[ModelType]:
         """Update a record.
-        
+
         Args:
-            id: Record ID.
+            record_id: Record ID.
             **kwargs: Fields to update.
-            
+
         Returns:
             Updated model instance or None if not found.
         """
-        instance = self.get(id)
+        instance = self.get(record_id)
         if instance:
             for key, value in kwargs.items():
                 if hasattr(instance, key):
@@ -85,16 +85,16 @@ class BaseRepository(Generic[ModelType]):
             self.session.flush()
         return instance
 
-    def delete(self, id: str) -> bool:
+    def delete(self, record_id: str) -> bool:
         """Delete a record.
-        
+
         Args:
-            id: Record ID.
-            
+            record_id: Record ID.
+
         Returns:
             True if deleted, False if not found.
         """
-        instance = self.get(id)
+        instance = self.get(record_id)
         if instance:
             self.session.delete(instance)
             self.session.flush()
@@ -103,10 +103,10 @@ class BaseRepository(Generic[ModelType]):
 
     def count(self, **filters: Any) -> int:
         """Count records with optional filters.
-        
+
         Args:
             **filters: Field filters.
-            
+
         Returns:
             Record count.
         """
@@ -124,31 +124,31 @@ class AccountRepository(BaseRepository[Account]):
         """Initialize AccountRepository."""
         super().__init__(session, Account)
 
-    def soft_delete(self, id: str) -> Optional[Account]:
+    def soft_delete(self, account_id: str) -> Optional[Account]:
         """Soft delete an account by marking it as inactive.
-        
+
         Args:
-            id: Account ID.
-            
+            account_id: Account ID.
+
         Returns:
             Updated account or None if not found.
         """
-        return self.update(id, is_active=False)
+        return self.update(account_id, is_active=False)
 
-    def get_active(self) -> List[Account]:
+    def get_active(self) -> list[Account]:
         """Get all active accounts.
-        
+
         Returns:
             List of active accounts.
         """
         return self.list(is_active=True)
 
-    def find_by_institution(self, institution: str) -> List[Account]:
+    def find_by_institution(self, institution: str) -> list[Account]:
         """Find accounts by institution.
-        
+
         Args:
             institution: Institution name.
-            
+
         Returns:
             List of accounts.
         """
@@ -162,12 +162,12 @@ class TransactionRepository(BaseRepository[Transaction]):
         """Initialize TransactionRepository."""
         super().__init__(session, Transaction)
 
-    def create_bulk(self, transactions: List[dict]) -> List[Transaction]:
+    def create_bulk(self, transactions: list[dict]) -> list[Transaction]:
         """Create multiple transactions.
-        
+
         Args:
             transactions: List of transaction data.
-            
+
         Returns:
             List of created transactions.
         """
@@ -187,13 +187,13 @@ class TransactionRepository(BaseRepository[Transaction]):
 
     def get_by_account(
         self, account_id: str, limit: Optional[int] = None
-    ) -> List[Transaction]:
+    ) -> list[Transaction]:
         """Get transactions for an account.
-        
+
         Args:
             account_id: Account ID.
             limit: Optional limit on number of results.
-            
+
         Returns:
             List of transactions.
         """
@@ -213,14 +213,14 @@ class TransactionRepository(BaseRepository[Transaction]):
         account_id: str,
         start_date: datetime,
         end_date: datetime,
-    ) -> List[Transaction]:
+    ) -> list[Transaction]:
         """Get transactions within a date range.
-        
+
         Args:
             account_id: Account ID.
             start_date: Start date.
             end_date: End date.
-            
+
         Returns:
             List of transactions.
         """
@@ -237,12 +237,12 @@ class TransactionRepository(BaseRepository[Transaction]):
             .all()
         )
 
-    def find_duplicates(self, source_hash: str) -> List[Transaction]:
+    def find_duplicates(self, source_hash: str) -> list[Transaction]:
         """Find transactions with the same hash.
-        
+
         Args:
             source_hash: Transaction hash.
-            
+
         Returns:
             List of potential duplicate transactions.
         """
@@ -252,12 +252,12 @@ class TransactionRepository(BaseRepository[Transaction]):
         self, account_id: str, start_date: datetime, end_date: datetime
     ) -> dict:
         """Get transaction totals grouped by category.
-        
+
         Args:
             account_id: Account ID.
             start_date: Start date.
             end_date: End date.
-            
+
         Returns:
             Dictionary of category totals.
         """
@@ -288,26 +288,26 @@ class ImportSessionRepository(BaseRepository[ImportSession]):
         super().__init__(session, ImportSession)
 
     def update_status(
-        self, id: str, status: ImportStatus, notes: Optional[dict] = None
+        self, session_id: str, status: ImportStatus, notes: Optional[dict] = None
     ) -> Optional[ImportSession]:
         """Update import session status.
-        
+
         Args:
-            id: Session ID.
+            session_id: Session ID.
             status: New status.
             notes: Optional validation notes.
-            
+
         Returns:
             Updated session or None if not found.
         """
         update_data = {"status": status}
         if notes:
             update_data["validation_notes"] = notes
-        return self.update(id, **update_data)
+        return self.update(session_id, **update_data)
 
-    def get_pending(self) -> List[ImportSession]:
+    def get_pending(self) -> list[ImportSession]:
         """Get all pending import sessions.
-        
+
         Returns:
             List of pending sessions.
         """
@@ -315,10 +315,10 @@ class ImportSessionRepository(BaseRepository[ImportSession]):
 
     def get_by_source_file(self, source_file: str) -> Optional[ImportSession]:
         """Get import session by source file.
-        
+
         Args:
             source_file: Source file name.
-            
+
         Returns:
             Import session or None.
         """

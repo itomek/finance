@@ -43,7 +43,10 @@ class TestAccount:
             institution="Bank ABC",
             account_type=AccountType.SAVINGS,
         )
-        assert repr(account) == "<Account(name='Savings Account', institution='Bank ABC')>"
+        assert (
+            repr(account)
+            == "<Account(name='Savings Account', institution='Bank ABC')>"
+        )
 
     def test_account_relationships(self, db_session):
         """Test account relationships."""
@@ -167,7 +170,9 @@ class TestImportSession:
         assert import_session.institution == "Test Bank"
         assert import_session.status == ImportStatus.PENDING
         assert import_session.record_count == 50
-        assert import_session.validation_notes == {"warnings": ["Missing category for 5 transactions"]}
+        assert import_session.validation_notes == {
+            "warnings": ["Missing category for 5 transactions"]
+        }
         assert import_session.import_date is not None
         assert import_session.created_at is not None
 
@@ -198,5 +203,8 @@ class TestImportSession:
             institution="Bank XYZ",
             status=ImportStatus.COMPLETED,
         )
-        assert repr(import_session) == "<ImportSession(file='statement.pdf', status='completed')>"
+        assert (
+            repr(import_session)
+            == "<ImportSession(file='statement.pdf', status='completed')>"
+        )
 

@@ -18,7 +18,7 @@ class DatabaseConfig:
 
     def __init__(self, db_path: Path | None = None):
         """Initialize database configuration.
-        
+
         Args:
             db_path: Path to the SQLite database file. If None, uses default.
         """
@@ -58,10 +58,10 @@ def get_session_factory():
 @contextmanager
 def get_db_session() -> Generator[Session, None, None]:
     """Context manager for database sessions.
-    
+
     Yields:
         Session: A SQLAlchemy session.
-    
+
     Example:
         with get_db_session() as session:
             account = session.query(Account).first()
@@ -80,7 +80,7 @@ def get_db_session() -> Generator[Session, None, None]:
 
 def init_database(db_path: Path | None = None, force: bool = False) -> None:
     """Initialize the database.
-    
+
     Args:
         db_path: Optional path to the database file.
         force: If True, recreate all tables (WARNING: destroys existing data).
@@ -102,7 +102,7 @@ def init_database(db_path: Path | None = None, force: bool = False) -> None:
 
 def get_database_path() -> Path:
     """Get the current database path.
-    
+
     Returns:
         Path: The path to the database file.
     """
@@ -111,7 +111,7 @@ def get_database_path() -> Path:
 
 def set_database_path(db_path: Path) -> None:
     """Set a new database path.
-    
+
     Args:
         db_path: The new database path.
     """
