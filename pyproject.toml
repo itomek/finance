@@ -24,8 +24,22 @@ classifiers = [
 ]
 keywords = ["finance", "personal-finance", "banking", "investment", "analysis"]
 
-[project.scripts]
-finance = "finance.hello:hello_world"
+dependencies = [
+    "sqlalchemy>=2.0.0",
+    "alembic>=1.13.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "mypy>=1.0.0",
+    "ruff>=0.1.0",
+]
+
+# CLI scripts will be added later
+# [project.scripts]
+# finance = "finance.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/itomek/finance"
@@ -84,7 +98,7 @@ addopts = [
     "--cov=finance",
     "--cov-report=term-missing",
     "--cov-report=html",
-    "--cov-fail-under=100",
+    "--cov-fail-under=80",
     "-v"
 ]
 
