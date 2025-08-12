@@ -1,6 +1,6 @@
 """Tests for database repositories."""
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from decimal import Decimal
 
 import pytest
@@ -10,7 +10,6 @@ from finance.database.models import (
     AccountType,
     ImportSession,
     ImportStatus,
-    Transaction,
     TransactionType,
 )
 from finance.database.repositories import (
@@ -57,7 +56,7 @@ class TestBaseRepository:
     def test_list(self, db_session):
         """Test listing records."""
         repo = AccountRepository(db_session)
-        
+
         # Create multiple accounts
         for i in range(3):
             repo.create(
@@ -117,7 +116,7 @@ class TestBaseRepository:
     def test_count(self, db_session):
         """Test counting records."""
         repo = AccountRepository(db_session)
-        
+
         assert repo.count() == 0
 
         # Create accounts
@@ -160,7 +159,7 @@ class TestAccountRepository:
     def test_get_active(self, db_session):
         """Test getting active accounts."""
         repo = AccountRepository(db_session)
-        
+
         # Create mix of active and inactive accounts
         active1 = repo.create(
             name="Active 1",
@@ -191,7 +190,7 @@ class TestAccountRepository:
     def test_find_by_institution(self, db_session):
         """Test finding accounts by institution."""
         repo = AccountRepository(db_session)
-        
+
         # Create accounts for different institutions
         pnc1 = repo.create(
             name="PNC Checking",
@@ -328,7 +327,7 @@ class TestTransactionRepository:
             import_session_id=import_session.id,
             source_hash="abc123",
         )
-        
+
         # Create another with same hash (duplicate)
         trans2 = repo.create(
             account_id=account.id,
@@ -387,7 +386,7 @@ class TestImportSessionRepository:
     def test_update_status(self, db_session):
         """Test updating import session status."""
         repo = ImportSessionRepository(db_session)
-        
+
         session = repo.create(
             source_file="test.pdf",
             institution="Test Bank",
@@ -407,7 +406,7 @@ class TestImportSessionRepository:
     def test_get_pending(self, db_session):
         """Test getting pending import sessions."""
         repo = ImportSessionRepository(db_session)
-        
+
         # Create sessions with different statuses
         pending1 = repo.create(
             source_file="pending1.pdf",
@@ -435,7 +434,7 @@ class TestImportSessionRepository:
     def test_get_by_source_file(self, db_session):
         """Test getting import session by source file."""
         repo = ImportSessionRepository(db_session)
-        
+
         session = repo.create(
             source_file="unique_file.pdf",
             institution="Test Bank",
@@ -449,3 +448,4 @@ class TestImportSessionRepository:
 
         # Test non-existent file
         assert repo.get_by_source_file("non_existent.pdf") is None
+

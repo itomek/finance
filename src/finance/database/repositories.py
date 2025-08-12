@@ -177,11 +177,11 @@ class TransactionRepository(BaseRepository[Transaction]):
             if "source_hash" not in trans_data:
                 temp_trans = Transaction(**trans_data)
                 trans_data["source_hash"] = temp_trans.calculate_hash()
-            
+
             instance = Transaction(**trans_data)
             self.session.add(instance)
             instances.append(instance)
-        
+
         self.session.flush()
         return instances
 
@@ -202,10 +202,10 @@ class TransactionRepository(BaseRepository[Transaction]):
             .filter(Transaction.account_id == account_id)
             .order_by(Transaction.transaction_date.desc())
         )
-        
+
         if limit:
             query = query.limit(limit)
-        
+
         return query.all()
 
     def get_by_date_range(
@@ -276,7 +276,7 @@ class TransactionRepository(BaseRepository[Transaction]):
             .group_by(Transaction.category)
             .all()
         )
-        
+
         return {category: float(total) for category, total in results}
 
 
@@ -327,3 +327,4 @@ class ImportSessionRepository(BaseRepository[ImportSession]):
             .filter(ImportSession.source_file == source_file)
             .first()
         )
+

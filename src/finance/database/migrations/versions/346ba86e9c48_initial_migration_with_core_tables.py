@@ -5,11 +5,11 @@ Revises:
 Create Date: 2025-08-12 17:57:40.940998
 
 """
-from typing import Sequence, Union
+from collections.abc import Sequence
+from typing import Union
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = '346ba86e9c48'
@@ -25,7 +25,9 @@ def upgrade() -> None:
     sa.Column('id', sa.String(length=36), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
     sa.Column('institution', sa.String(length=50), nullable=False),
-    sa.Column('account_type', sa.Enum('CHECKING', 'SAVINGS', 'INVESTMENT', 'CREDIT', 'LOAN', name='accounttype'), nullable=False),
+    sa.Column('account_type', sa.Enum('CHECKING', 'SAVINGS', 'INVESTMENT',
+                                        'CREDIT', 'LOAN', name='accounttype'),
+              nullable=False),
     sa.Column('account_number_masked', sa.String(length=20), nullable=True),
     sa.Column('is_active', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -37,7 +39,9 @@ def upgrade() -> None:
     sa.Column('source_file', sa.String(length=255), nullable=False),
     sa.Column('institution', sa.String(length=50), nullable=False),
     sa.Column('import_date', sa.DateTime(), nullable=False),
-    sa.Column('status', sa.Enum('PENDING', 'VALIDATED', 'COMPLETED', 'FAILED', name='importstatus'), nullable=False),
+    sa.Column('status', sa.Enum('PENDING', 'VALIDATED', 'COMPLETED',
+                                  'FAILED', name='importstatus'),
+              nullable=False),
     sa.Column('record_count', sa.Integer(), nullable=True),
     sa.Column('validation_notes', sa.JSON(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -50,7 +54,9 @@ def upgrade() -> None:
     sa.Column('amount', sa.Numeric(precision=12, scale=2), nullable=False),
     sa.Column('description', sa.Text(), nullable=False),
     sa.Column('category', sa.String(length=50), nullable=True),
-    sa.Column('transaction_type', sa.Enum('DEBIT', 'CREDIT', name='transactiontype'), nullable=False),
+    sa.Column('transaction_type',
+              sa.Enum('DEBIT', 'CREDIT', name='transactiontype'),
+              nullable=False),
     sa.Column('import_session_id', sa.String(length=36), nullable=False),
     sa.Column('source_hash', sa.String(length=64), nullable=True),
     sa.Column('extra_data', sa.JSON(), nullable=True),

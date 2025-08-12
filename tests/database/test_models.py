@@ -3,8 +3,6 @@
 from datetime import datetime
 from decimal import Decimal
 
-import pytest
-
 from finance.database.models import (
     Account,
     AccountType,
@@ -108,10 +106,10 @@ class TestTransaction:
             transaction_type=TransactionType.DEBIT,
             import_session_id="import123",
         )
-        
+
         hash1 = transaction.calculate_hash()
         assert len(hash1) == 64  # SHA-256 produces 64 character hex string
-        
+
         # Same data should produce same hash
         hash2 = transaction.calculate_hash()
         assert hash1 == hash2
@@ -201,3 +199,4 @@ class TestImportSession:
             status=ImportStatus.COMPLETED,
         )
         assert repr(import_session) == "<ImportSession(file='statement.pdf', status='completed')>"
+

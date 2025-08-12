@@ -221,3 +221,4 @@ pip install -e .
 - **Institution Support**: Initially PNC and Robinhood, extensible via templates
 - **Privacy-First**: All processing local, no cloud dependencies
 - **Cross-Platform**: API enables platform-agnostic clients
+- when creating a PR and we were working on a GitHub issue, and the issue is resolved by the PR, aadd a line with "Resolved #<github_issue_number>"

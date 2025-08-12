@@ -43,7 +43,7 @@ class TestDatabaseConnection:
             # Use context manager
             with get_db_session() as session:
                 assert isinstance(session, Session)
-                
+
                 # Create a test account
                 account = Account(
                     name="Test Account",
@@ -86,13 +86,13 @@ class TestDatabaseConnection:
         """Test that init_database creates all tables."""
         with tempfile.TemporaryDirectory() as tmpdir:
             db_path = Path(tmpdir) / "test.db"
-            
+
             # Initialize database
             init_database(db_path)
-            
+
             # Verify database file exists
             assert db_path.exists()
-            
+
             # Verify tables can be used
             with get_db_session() as session:
                 # Should not raise any errors
@@ -125,11 +125,12 @@ class TestDatabaseConnection:
         """Test getting and setting database path."""
         with tempfile.TemporaryDirectory() as tmpdir:
             original_path = get_database_path()
-            
+
             # Set new path
             new_path = Path(tmpdir) / "new.db"
             set_database_path(new_path)
             assert get_database_path() == new_path
-            
+
             # Restore original (for other tests)
             set_database_path(original_path)
+

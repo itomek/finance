@@ -3,8 +3,6 @@
 import enum
 import hashlib
 from datetime import datetime, timezone
-from decimal import Decimal
-from typing import Any, Optional
 from uuid import uuid4
 
 from sqlalchemy import (
@@ -135,3 +133,4 @@ class ImportSession(Base):
 
     def __repr__(self) -> str:
         return f"<ImportSession(file='{self.source_file}', status='{self.status.value}')>"
+

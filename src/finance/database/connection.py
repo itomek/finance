@@ -1,9 +1,8 @@
 """Database connection and session management."""
 
-import os
+from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Generator
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
@@ -67,8 +66,8 @@ def get_db_session() -> Generator[Session, None, None]:
         with get_db_session() as session:
             account = session.query(Account).first()
     """
-    SessionLocal = get_session_factory()
-    session = SessionLocal()
+    session_factory = get_session_factory()
+    session = session_factory()
     try:
         yield session
         session.commit()
@@ -87,17 +86,17 @@ def init_database(db_path: Path | None = None, force: bool = False) -> None:
         force: If True, recreate all tables (WARNING: destroys existing data).
     """
     global _config, _engine, _SessionLocal
-    
+
     if db_path:
         _config = DatabaseConfig(db_path)
         _engine = None
         _SessionLocal = None
-    
+
     engine = get_engine()
-    
+
     if force:
         Base.metadata.drop_all(bind=engine)
-    
+
     Base.metadata.create_all(bind=engine)
 
 
@@ -120,3 +119,4 @@ def set_database_path(db_path: Path) -> None:
     _config = DatabaseConfig(db_path)
     _engine = None
     _SessionLocal = None
+
