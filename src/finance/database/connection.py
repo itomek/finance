@@ -119,4 +119,3 @@ def set_database_path(db_path: Path) -> None:
     _config = DatabaseConfig(db_path)
     _engine = None
     _SessionLocal = None
-

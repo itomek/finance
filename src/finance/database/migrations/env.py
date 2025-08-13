@@ -27,7 +27,7 @@ target_metadata = Base.metadata
 
 # Override the database URL with our actual database path
 db_path = get_database_path()
-config.set_main_option('sqlalchemy.url', f'sqlite:///{db_path}')
+config.set_main_option("sqlalchemy.url", f"sqlite:///{db_path}")
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -73,9 +73,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

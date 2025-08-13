@@ -10,4 +10,3 @@ __all__ = [
     "get_db_session",
     "init_database",
 ]
-

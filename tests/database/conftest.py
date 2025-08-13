@@ -39,4 +39,3 @@ def db_session(temp_db):
 
     session.close()
     engine.dispose()
-

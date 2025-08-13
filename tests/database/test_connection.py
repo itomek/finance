@@ -133,4 +133,3 @@ class TestDatabaseConnection:
 
             # Restore original (for other tests)
             set_database_path(original_path)
-

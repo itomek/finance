@@ -448,4 +448,3 @@ class TestImportSessionRepository:
 
         # Test non-existent file
         assert repo.get_by_source_file("non_existent.pdf") is None
-

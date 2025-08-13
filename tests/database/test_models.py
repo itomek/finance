@@ -44,8 +44,7 @@ class TestAccount:
             account_type=AccountType.SAVINGS,
         )
         assert (
-            repr(account)
-            == "<Account(name='Savings Account', institution='Bank ABC')>"
+            repr(account) == "<Account(name='Savings Account', institution='Bank ABC')>"
         )
 
     def test_account_relationships(self, db_session):
@@ -207,4 +206,3 @@ class TestImportSession:
             repr(import_session)
             == "<ImportSession(file='statement.pdf', status='completed')>"
         )
-

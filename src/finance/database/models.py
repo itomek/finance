@@ -154,7 +154,5 @@ class ImportSession(Base):
 
     def __repr__(self) -> str:
         return (
-            f"<ImportSession(file='{self.source_file}', "
-            f"status='{self.status.value}')>"
+            f"<ImportSession(file='{self.source_file}', status='{self.status.value}')>"
         )
-
