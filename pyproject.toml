@@ -24,6 +24,11 @@ classifiers = [
 ]
 keywords = ["finance", "personal-finance", "banking", "investment", "analysis"]
 
+dependencies = [
+    "sqlalchemy>=2.0.0",
+    "alembic>=1.13.0",
+]
+
 [project.scripts]
 finance = "finance.hello:hello_world"
 
