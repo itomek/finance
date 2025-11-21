@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-from src.database.models import Base, Account, Transaction, ImportSession
+from src.database.models import Base, Account, Transaction, ImportSession, Asset, Position, InvestmentTransaction, PortfolioSnapshot
 
 T = TypeVar("T", bound=Base)
 
@@ -62,3 +62,35 @@ class TransactionRepository(BaseRepository[Transaction]):
 class ImportSessionRepository(BaseRepository[ImportSession]):
     def __init__(self, session: Session):
         super().__init__(session, ImportSession)
+
+class AssetRepository(BaseRepository[Asset]):
+    def __init__(self, session: Session):
+        super().__init__(session, Asset)
+
+    def get_by_symbol(self, symbol: str) -> Optional[Asset]:
+        stmt = select(self.model).where(self.model.symbol == symbol)
+        return self.session.execute(stmt).scalars().first()
+
+class PositionRepository(BaseRepository[Position]):
+    def __init__(self, session: Session):
+        super().__init__(session, Position)
+
+    def get_by_account(self, account_id: int) -> List[Position]:
+        stmt = select(self.model).where(self.model.account_id == account_id)
+        return list(self.session.execute(stmt).scalars().all())
+
+class InvestmentTransactionRepository(BaseRepository[InvestmentTransaction]):
+    def __init__(self, session: Session):
+        super().__init__(session, InvestmentTransaction)
+
+    def get_by_account(self, account_id: int) -> List[InvestmentTransaction]:
+        stmt = select(self.model).where(self.model.account_id == account_id)
+        return list(self.session.execute(stmt).scalars().all())
+
+class PortfolioSnapshotRepository(BaseRepository[PortfolioSnapshot]):
+    def __init__(self, session: Session):
+        super().__init__(session, PortfolioSnapshot)
+
+    def get_by_account(self, account_id: int) -> List[PortfolioSnapshot]:
+        stmt = select(self.model).where(self.model.account_id == account_id).order_by(self.model.date.desc())
+        return list(self.session.execute(stmt).scalars().all())

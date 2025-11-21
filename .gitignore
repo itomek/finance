@@ -215,6 +215,7 @@ __marimo__/
 staging/
 imports/
 analysis/
+!src/analysis/
 reports/
 
 # Homebrew tap (separate repository)

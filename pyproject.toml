@@ -27,6 +27,10 @@ keywords = ["finance", "personal-finance", "banking", "investment", "analysis"]
 dependencies = [
     "sqlalchemy>=2.0.0",
     "alembic>=1.13.0",
+    "camelot-py[cv]>=0.10.1",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "opencv-python>=4.8.0",
 ]
 
 [project.scripts]
