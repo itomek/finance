@@ -1,4 +1,4 @@
-name: Update Homebrew Formula
+name: Update Package Managers
 
 on:
   workflow_run:
@@ -6,38 +6,55 @@ on:
     types: [completed]
 
 jobs:
-  update-formula:
+  dispatch:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Get release info
         id: release_info
         run: |
-          # Get the latest release
           RELEASE_DATA=$(curl -s \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/releases/latest")
-          
+
           VERSION=$(echo "$RELEASE_DATA" | jq -r '.tag_name' | sed 's/^v//')
           ASSET_URL=$(echo "$RELEASE_DATA" | jq -r '.assets[] | select(.name | contains(".tar.gz")) | .browser_download_url')
-          
+
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo "ASSET_URL=${ASSET_URL}" >> $GITHUB_ENV
 
       - name: Download and calculate SHA256
         run: |
-          # Download the release asset
-          curl -L -o "finance-${VERSION}.tar.gz" "${ASSET_URL}"
-          
-          # Calculate SHA256
+          curl -fsSL -o "finance-${VERSION}.tar.gz" "${ASSET_URL}"
           SHA256=$(sha256sum "finance-${VERSION}.tar.gz" | cut -d' ' -f1)
-          
           echo "SHA256=${SHA256}" >> $GITHUB_ENV
 
-      - name: Trigger formula update
-        uses: peter-evans/repository-dispatch@v2
+      - name: Dispatch to homebrew-tap
+        uses: peter-evans/repository-dispatch@v3
+        continue-on-error: true
         with:
-          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
-          repository: itomek/homebrew-finance
+          token: ${{ secrets.TAP_UPDATE_TOKEN }}
+          repository: itomek/homebrew-tap
           event-type: formula-update
-          client-payload: '{"version": "${{ env.VERSION }}", "sha256": "${{ env.SHA256 }}", "download_url": "${{ env.ASSET_URL }}"}'
+          client-payload: |
+            {
+              "formula": "finance",
+              "version": "${{ env.VERSION }}",
+              "sha256": "${{ env.SHA256 }}",
+              "download_url": "${{ env.ASSET_URL }}"
+            }
+
+      - name: Dispatch to scoop-bucket
+        uses: peter-evans/repository-dispatch@v3
+        continue-on-error: true
+        with:
+          token: ${{ secrets.TAP_UPDATE_TOKEN }}
+          repository: itomek/scoop-bucket
+          event-type: manifest-update
+          client-payload: |
+            {
+              "formula": "finance",
+              "version": "${{ env.VERSION }}",
+              "sha256": "${{ env.SHA256 }}",
+              "download_url": "${{ env.ASSET_URL }}"
+            }
